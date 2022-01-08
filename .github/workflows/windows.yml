@@ -41,6 +41,7 @@ jobs:
         cd armorcore
         msbuild.exe build/ArmorPaint.vcxproj /p:Configuration=Release /p:Platform=x64
     - name: show tree
+      run: |
         cd armorpaint
         tree /f /a
         
