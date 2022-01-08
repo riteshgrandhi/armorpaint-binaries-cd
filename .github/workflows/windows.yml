@@ -32,16 +32,16 @@ jobs:
         cd armorpaint
         node.exe armorcore/make -g direct3d11
         cd armorcore
-        7z x v8\libraries\win32\release\v8_monolith.7z
+        7z x v8\libraries\win32\release\v8_monolith.7z -o .
         git apply patch/window_handling.diff --directory=Kinc
         node Kinc/make -g direct3d11
+    - name: show tree
+      run: |
+        cd armorpaint
+        tree /f /a
     - name: build
       run: |
         cd armorpaint
         cd armorcore
         msbuild.exe build/ArmorPaint.vcxproj /p:Configuration=Release /p:Platform=x64
-    - name: show tree
-      run: |
-        cd armorpaint
-        tree /f /a
         
