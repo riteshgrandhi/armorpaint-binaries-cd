@@ -1,0 +1,3 @@
+[submodule "armorpaint"]
+	path = armorpaint
+	url = https://github.com/armory3d/armorpaint.git
