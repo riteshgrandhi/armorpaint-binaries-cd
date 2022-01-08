@@ -20,17 +20,17 @@ jobs:
       uses: actions/checkout@v2.4.0
       with:
         submodules: "recursive"
-    - name: setup-node
+    - name: Setup node
       uses: actions/setup-node@v2.5.1    
-    - name: setup-msbuild
+    - name: Setup msbuild
       uses: microsoft/setup-msbuild@v1.1
       with:
         # The preferred processor architecture of MSBuild. Can be either "x86" or "x64". "x64" is only available from Visual Studio version 17.0 and later.
         msbuild-architecture: x64
-    - name: compile
+    - name: Compile
       run: |
         cd armorpaint
-        node.exe armorcore/make -g direct3d11
+        node armorcore/make -g direct3d11
         cd armorcore
         7z x v8\libraries\win32\release\v8_monolith.7z -ov8\libraries\win32\release -y
         git apply patch/window_handling.diff --directory=Kinc
@@ -39,9 +39,20 @@ jobs:
       run: |
         cd armorpaint
         tree /f /a
-    - name: build
+    - name: Build
       run: |
         cd armorpaint
         cd armorcore
-        msbuild.exe build/ArmorPaint.vcxproj /p:Configuration=Release /p:Platform=x64
+        msbuild build/ArmorPaint.vcxproj /p:Configuration=Release /p:Platform=x64
+    - name: Zip Release Artifact
+      run: |
+        cd armorpaint
+        cd armorcore
+        7z a armorpaint-0.9_dev.zip build\x64\Release  
+    - name: Release
+      uses: softprops/action-gh-release@v1
+      with:
+        name: 0.9_dev
+        files: armorpaint-0.9_dev.zip
+          
         
