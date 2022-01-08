@@ -46,7 +46,7 @@ jobs:
     - name: Create Artifact
       run: |
         cd armorpaint
-        cp -a armorcore/build/x64/Release/. build/
+        cp -r armorcore/build/x64/Release/* build/
         7z a armorpaint-${{github.ref_name}}.zip build
         ls
     - name: Push Artifact
