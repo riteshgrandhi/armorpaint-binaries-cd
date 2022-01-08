@@ -1,23 +1,20 @@
 # This is a basic workflow that is manually triggered
 
-name: Manual workflow
+name: Windows Pipeline
 
 # Controls when the action will run. Workflow runs when manually triggered using the UI
 # or API.
 on:
   push:
-    branches:
-    - v*.*
     tags:
     - v*.*
 
 # A workflow run is made up of one or more jobs that can run sequentially or in parallel
 jobs:
   # This workflow contains a single job called "greet"
-  build:
+  Build:
     # The type of runner that the job will run on
     runs-on: windows-2022
-
     # Steps represent a sequence of tasks that will be executed as part of the job
     steps:
     - name: Checkout
@@ -39,22 +36,34 @@ jobs:
         7z x v8\libraries\win32\release\v8_monolith.7z -ov8\libraries\win32\release -y
         git apply patch/window_handling.diff --directory=Kinc
         node Kinc/make -g direct3d11
-    - name: show tree
-      run: |
-        cd armorpaint
-        tree /f /a
     - name: Build
       run: |
         cd armorpaint
         cd armorcore
         msbuild build/ArmorPaint.vcxproj /p:Configuration=Release /p:Platform=x64
-    - name: Zip Release Artifact
+    - name: Create Artifact
       run: |
         cd armorpaint
         cd armorcore
-        7z a armorpaint-${{github.ref_name}}.zip build\x64\Release  
-    - name: Release
+        7z a armorpaint-${{github.ref_name}}.zip build\x64\Release
+        ls
+    - name: Push Artifact
+      uses: actions/upload-artifact@v2.3.1
+      with:
+        name: armorpaint-artifacts
+        path: armorpaint/armorcore/armorpaint-${{github.ref_name}}.zip
+        if-no-files-found: error
+  Release:
+    # The type of runner that the job will run on
+    runs-on: ubuntu-latest
+    steps:
+    - name: Pull Artifact
+      uses: actions/download-artifact@v2.1.0
+      with:
+        name: armorpaint-artifacts
+    - name: Release Artifact
       uses: softprops/action-gh-release@v1
       with:
         name: ${{github.ref_name}}
-        files: armorpaint-${{github.ref_name}}.zip
+        files: |
+          armorpaint-*.zip
