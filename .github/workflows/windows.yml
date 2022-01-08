@@ -27,13 +27,20 @@ jobs:
       with:
         # The preferred processor architecture of MSBuild. Can be either "x86" or "x64". "x64" is only available from Visual Studio version 17.0 and later.
         msbuild-architecture: x64
-    - name: build
+    - name: compile
       run: |
         cd armorpaint
         node.exe armorcore/make -g direct3d11
         cd armorcore
+        7z x v8\libraries\win32\release\v8_monolith.7z
         git apply patch/window_handling.diff --directory=Kinc
         node Kinc/make -g direct3d11
+    - name: build
+      run: |
+        cd armorpaint
+        cd armorcore
         msbuild.exe build/ArmorPaint.vcxproj /p:Configuration=Release /p:Platform=x64
+    - name: show tree
+        cd armorpaint
         tree /f /a
         
