@@ -1,0 +1,60 @@
+# This is a basic workflow that is manually triggered
+
+name: Manual workflow
+
+# Controls when the action will run. Workflow runs when manually triggered using the UI
+# or API.
+on:
+  push:
+    branches:
+    - v*.*
+    tags:
+    - v*.*
+
+# A workflow run is made up of one or more jobs that can run sequentially or in parallel
+jobs:
+  # This workflow contains a single job called "greet"
+  build:
+    # The type of runner that the job will run on
+    runs-on: windows-2022
+
+    # Steps represent a sequence of tasks that will be executed as part of the job
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v2.4.0
+      with:
+        submodules: "recursive"
+    - name: Setup node
+      uses: actions/setup-node@v2.5.1    
+    - name: Setup msbuild
+      uses: microsoft/setup-msbuild@v1.1
+      with:
+        # The preferred processor architecture of MSBuild. Can be either "x86" or "x64". "x64" is only available from Visual Studio version 17.0 and later.
+        msbuild-architecture: x64
+    - name: Compile
+      run: |
+        cd armorpaint
+        node armorcore/make -g direct3d11
+        cd armorcore
+        7z x v8\libraries\win32\release\v8_monolith.7z -ov8\libraries\win32\release -y
+        git apply patch/window_handling.diff --directory=Kinc
+        node Kinc/make -g direct3d11
+    - name: show tree
+      run: |
+        cd armorpaint
+        tree /f /a
+    - name: Build
+      run: |
+        cd armorpaint
+        cd armorcore
+        msbuild build/ArmorPaint.vcxproj /p:Configuration=Release /p:Platform=x64
+    - name: Zip Release Artifact
+      run: |
+        cd armorpaint
+        cd armorcore
+        7z a armorpaint-${{github.ref_name}}.zip build\x64\Release  
+    - name: Release
+      uses: softprops/action-gh-release@v1
+      with:
+        name: ${{github.ref_name}}
+        files: armorpaint-${{github.ref_name}}.zip
