@@ -5,7 +5,11 @@ name: Manual workflow
 # Controls when the action will run. Workflow runs when manually triggered using the UI
 # or API.
 on:
-  workflow_dispatch:
+  push:
+    branches:
+    - v*.*
+    tags:
+    - v*.*
 
 # A workflow run is made up of one or more jobs that can run sequentially or in parallel
 jobs:
@@ -48,11 +52,9 @@ jobs:
       run: |
         cd armorpaint
         cd armorcore
-        7z a armorpaint-0.9_dev.zip build\x64\Release  
+        7z a armorpaint-${{github.ref_name}}.zip build\x64\Release  
     - name: Release
       uses: softprops/action-gh-release@v1
       with:
-        name: 0.9_dev
-        files: armorpaint-0.9_dev.zip
-          
-        
+        name: ${{github.ref_name}}
+        files: armorpaint-${{github.ref_name}}.zip
