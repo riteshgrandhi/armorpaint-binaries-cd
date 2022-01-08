@@ -52,7 +52,7 @@ jobs:
       uses: actions/upload-artifact@v2.3.1
       with:
         name: armorpaint-artifacts
-        path: armorpaint/armorcore/armorpaint-${{github.ref_name}}.zip
+        path: armorpaint/armorpaint-${{github.ref_name}}.zip
         if-no-files-found: error
   # Release:
   #   # The type of runner that the job will run on
